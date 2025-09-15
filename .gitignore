@@ -1,0 +1,9 @@
+/.*
+!.gitignore
+!.editorconfig
+[Bb]uild*/
+
+# meson subprojects
+/subprojects/*
+!/subprojects/packagefiles
+!/subprojects/*.wrap
