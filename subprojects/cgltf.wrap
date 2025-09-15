@@ -1,0 +1,9 @@
+[wrap-file]
+directory = cgltf-1.15
+source_url = https://github.com/jkuhlmann/cgltf/archive/refs/tags/v1.15.zip
+source_filename = cgltf-1.15.zip
+source_hash = a2f5f6db978fd269a107e9284f4a7bac5d1132cd7cc5e6464e60c8aff81001d1
+patch_directory = cgltf
+
+[provide]
+cgltf = cgltf_dep
