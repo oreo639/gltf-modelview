@@ -6,7 +6,7 @@ project('gltf-modelview', ['c'],
 cc = meson.get_compiler('c')
 
 lm    = cc.find_library('m', required: false)
-sdl2  = dependency('sdl2')
+sdl3  = dependency('sdl3')
 epoxy = dependency('epoxy')
 cgltf = subproject('cgltf').get_variable('cgltf_dep')
 stb   = subproject('stb').get_variable('stb_dep')
@@ -24,6 +24,6 @@ executable(
   'gltf_modelview',
   gview_src,
   include_directories: include_directories('src'),
-  dependencies: [sdl2, epoxy, cgltf, stb, lm, idep_cutils],
+  dependencies: [sdl3, epoxy, cgltf, stb, lm, idep_cutils],
   install: true,
 )

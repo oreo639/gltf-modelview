@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <epoxy/gl.h>
 #include <cglm/struct.h>
 
@@ -74,13 +74,13 @@ void framebuffer_size_callback(int width, int height) {
 
 void window_input_grab(SDL_Window* window, bool enable) {
 	if (enable) {
-		SDL_ShowCursor(SDL_FALSE);
-		SDL_SetRelativeMouseMode(SDL_TRUE);
-		SDL_SetWindowGrab(window, SDL_TRUE);
+		SDL_HideCursor();
+		SDL_SetWindowRelativeMouseMode(window, true);
+		SDL_SetWindowMouseGrab(window, true);
 	} else {
-		SDL_ShowCursor(SDL_TRUE);
-		SDL_SetRelativeMouseMode(SDL_FALSE);
-		SDL_SetWindowGrab(window, SDL_FALSE);
+		SDL_ShowCursor();
+		SDL_SetWindowRelativeMouseMode(window, false);
+		SDL_SetWindowMouseGrab(window, false);
 	}
 }
 
@@ -92,11 +92,11 @@ double get_time_sec() {
 }
 
 int main(int argc, char *argv[argc-1]) {
-	if (SDL_Init(0) < 0) {
+	if (!SDL_Init(0)) {
 		FatalError("Failed to init SDL2: %s", SDL_GetError());
 	}
 
-	if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+	if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
 		FatalError("SDL2 failed to init video: %s", SDL_GetError());
 	}
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[argc-1]) {
 
 	SDL_Window* window = NULL;
 	SDL_GLContext context = NULL;
-	window = SDL_CreateWindow("My Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("My Game", WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	if (window == NULL) {
 		FatalError("SDL2 failed to create window: %s", SDL_GetError());
 	}
@@ -141,63 +141,59 @@ int main(int argc, char *argv[argc-1]) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			switch(event.type) {
-			case SDL_QUIT:
+			case SDL_EVENT_QUIT:
 				exit_requested = true;
 				break;
-			case SDL_WINDOWEVENT:
-				switch (event.window.event) {
-				case SDL_WINDOWEVENT_RESIZED:
-					scr_width = event.window.data1;
-					scr_height = event.window.data2;
-					framebuffer_size_callback(event.window.data1, event.window.data2);
-					break;
-				}
+			case SDL_EVENT_WINDOW_RESIZED:
+				scr_width = event.window.data1;
+				scr_height = event.window.data2;
+				framebuffer_size_callback(event.window.data1, event.window.data2);
 				break;
-			case SDL_MOUSEWHEEL:
-				model_scale += event.wheel.preciseY * .02f;
+			case SDL_EVENT_MOUSE_WHEEL:
+				model_scale += event.wheel.y * .02f;
 				break;
-			case SDL_MOUSEMOTION:
+			case SDL_EVENT_MOUSE_MOTION:
 				if (is_grabbed) mouse_callback(event.motion.xrel, event.motion.yrel);
 				break;
-			case SDL_KEYUP:
-				if (event.key.keysym.sym == SDLK_ESCAPE) {
+			case SDL_EVENT_KEY_UP:
+				if (event.key.key == SDLK_ESCAPE) {
 					exit_requested = true;
 				}
 				break;
-			case SDL_KEYDOWN:
-				if (event.key.keysym.sym == SDLK_UP) {
+			case SDL_EVENT_KEY_DOWN:
+				if (event.key.key == SDLK_UP) {
 					angleX += glm_rad(1);
-				} else if (event.key.keysym.sym == SDLK_DOWN) {
+				} else if (event.key.key == SDLK_DOWN) {
 					angleX -= glm_rad(1);
-				} else if (event.key.keysym.sym == SDLK_RIGHT) {
+				} else if (event.key.key == SDLK_RIGHT) {
 					angleY +=  glm_rad(1);
-				} else if (event.key.keysym.sym == SDLK_LEFT) {
+				} else if (event.key.key == SDLK_LEFT) {
 					angleY -= glm_rad(1);
-				} else if (event.key.keysym.sym == SDLK_0) {
+				} else if (event.key.key == SDLK_0) {
 					animator_change_animation(&anim, fox.animations_count < 1 ? NULL : &fox.animations[0]);
-				} else if (event.key.keysym.sym == SDLK_1) {
+				} else if (event.key.key == SDLK_1) {
 					animator_change_animation(&anim, fox.animations_count < 2 ? NULL : &fox.animations[1]);
-				} else if (event.key.keysym.sym == SDLK_2) {
+				} else if (event.key.key == SDLK_2) {
 					animator_change_animation(&anim, fox.animations_count < 3 ? NULL : &fox.animations[2]);
-				} else if (event.key.keysym.sym == SDLK_3) {
+				} else if (event.key.key == SDLK_3) {
 					animator_change_animation(&anim, fox.animations_count < 4 ? NULL : &fox.animations[3]);
-				} else if (event.key.keysym.sym == SDLK_4) {
+				} else if (event.key.key == SDLK_4) {
 					animator_change_animation(&anim, fox.animations_count < 5 ? NULL : &fox.animations[4]);
-				} else if (event.key.keysym.sym == SDLK_5) {
+				} else if (event.key.key == SDLK_5) {
 					animator_change_animation(&anim, fox.animations_count < 6 ? NULL : &fox.animations[5]);
-				} else if (event.key.keysym.sym == SDLK_6) {
+				} else if (event.key.key == SDLK_6) {
 					animator_change_animation(&anim, fox.animations_count < 7 ? NULL : &fox.animations[6]);
-				} else if (event.key.keysym.sym == SDLK_7) {
+				} else if (event.key.key == SDLK_7) {
 					animator_change_animation(&anim, fox.animations_count < 8 ? NULL : &fox.animations[7]);
-				} else if (event.key.keysym.sym == SDLK_8) {
+				} else if (event.key.key == SDLK_8) {
 					animator_change_animation(&anim, fox.animations_count < 9 ? NULL : &fox.animations[8]);
-				} else if (event.key.keysym.sym == SDLK_9) {
+				} else if (event.key.key == SDLK_9) {
 					animator_change_animation(&anim, fox.animations_count < 10 ? NULL : &fox.animations[9]);
-				} else if (event.key.keysym.sym == SDLK_c) {
+				} else if (event.key.key == SDLK_C) {
 					is_shader_color = !is_shader_color;
-				} else if (event.key.keysym.sym == SDLK_v) {
+				} else if (event.key.key == SDLK_V) {
 					is_shader_lit = !is_shader_lit;
-				} else if (event.key.keysym.sym == SDLK_g) {
+				} else if (event.key.key == SDLK_G) {
 					is_grabbed = !is_grabbed;
 					window_input_grab(window, is_grabbed);
 				}
@@ -206,18 +202,18 @@ int main(int argc, char *argv[argc-1]) {
 				break;
 			}
 		}
-		const Uint8 *keys = SDL_GetKeyboardState(NULL);
-		if (keys[SDL_SCANCODE_W] == SDL_PRESSED)
+		const bool *keys = SDL_GetKeyboardState(NULL);
+		if (keys[SDL_SCANCODE_W])
 			cameraPos = glms_vec3_add(cameraPos, glms_vec3_scale(cameraFront, cameraSpeed));
-		if (keys[SDL_SCANCODE_S] == SDL_PRESSED)
+		if (keys[SDL_SCANCODE_S])
 			cameraPos = glms_vec3_sub(cameraPos, glms_vec3_scale(cameraFront, cameraSpeed));
-		if (keys[SDL_SCANCODE_A] == SDL_PRESSED)
+		if (keys[SDL_SCANCODE_A])
 			cameraPos = glms_vec3_sub(cameraPos, glms_vec3_scale(glms_vec3_normalize(glms_vec3_cross(cameraFront, cameraUp)), cameraSpeed));
-		if (keys[SDL_SCANCODE_D] == SDL_PRESSED)
+		if (keys[SDL_SCANCODE_D])
 			cameraPos = glms_vec3_add(cameraPos, glms_vec3_scale(glms_vec3_normalize(glms_vec3_cross(cameraFront, cameraUp)), cameraSpeed));
-		if (keys[SDL_SCANCODE_SPACE] == SDL_PRESSED)
+		if (keys[SDL_SCANCODE_SPACE])
 			cameraPos = glms_vec3_add(cameraPos, glms_vec3_scale(glms_vec3_normalize(glms_vec3_cross(glms_vec3_cross(cameraFront, cameraUp), cameraFront)), cameraSpeed));
-		if (keys[SDL_SCANCODE_LSHIFT] == SDL_PRESSED)
+		if (keys[SDL_SCANCODE_LSHIFT])
 			cameraPos = glms_vec3_sub(cameraPos, glms_vec3_scale(glms_vec3_normalize(glms_vec3_cross(glms_vec3_cross(cameraFront, cameraUp), cameraFront)), cameraSpeed));
 
 		glClearColor(0.7f, 0.9f, 0.1f, 1.0f);
