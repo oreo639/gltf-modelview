@@ -106,7 +106,7 @@ int main(int argc, char *argv[argc-1]) {
 
 	SDL_Window* window = NULL;
 	SDL_GLContext context = NULL;
-	window = SDL_CreateWindow("My Game", WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("My Game", WIDTH, HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 	if (window == NULL) {
 		FatalError("SDL2 failed to create window: %s", SDL_GetError());
 	}
@@ -144,7 +144,7 @@ int main(int argc, char *argv[argc-1]) {
 			case SDL_EVENT_QUIT:
 				exit_requested = true;
 				break;
-			case SDL_EVENT_WINDOW_RESIZED:
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 				scr_width = event.window.data1;
 				scr_height = event.window.data2;
 				framebuffer_size_callback(event.window.data1, event.window.data2);
